@@ -8,6 +8,7 @@ public class ChatMessage {
     public String nickname; 
     public String imageData; // Base64 para imágenes
     public String imageType; // "png", "jpg", etc.
+	public long timestamp;
 
   
 	public ChatMessage() {}

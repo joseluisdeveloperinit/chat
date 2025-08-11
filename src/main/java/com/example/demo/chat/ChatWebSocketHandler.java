@@ -26,16 +26,19 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
         idMap.put(session, clientId);
         SessionManager.add(clientId, session);
 
+        // Enviar ID al cliente
         ChatMessage idMsg = new ChatMessage("id", "system", null, clientId, null);
         session.sendMessage(new TextMessage(gson.toJson(idMsg)));
 
-        // Broadcast join sin nickname (opcional)
+        // Actualizar lista de usuarios para TODOS los clientes
+        broadcastUserList(); // <-- Añade esta línea
+
+        // Mensaje de bienvenida (opcional)
         ChatMessage joinMsg = new ChatMessage("join", "system", null, 
-                                            "Nuevo usuario conectado", 
-                                            null);
-        SessionManager.broadcast(gson.toJson(joinMsg)); 
+                                          "Nuevo usuario conectado", 
+                                          null);
+        SessionManager.broadcast(gson.toJson(joinMsg));
     }
-    
     @Override
     protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
         ChatMessage msg = gson.fromJson(message.getPayload(), ChatMessage.class);
@@ -95,17 +98,18 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
         if ("public".equals(msg.type)) {
             // 1. Primero almacenamos el mensaje
             ChatMessage publicMsg = new ChatMessage(
-                "public",
-                senderId,
-                null, // to es null para mensajes públicos
-                msg.message,
-                SessionManager.getNickname(senderId)
-            );
+                    "public",
+                    senderId,
+                    null,
+                    msg.message,
+                    SessionManager.getNickname(senderId)
+                );
+            publicMsg.timestamp = System.currentTimeMillis(); // Añadir timestamp
+            
             ChatMessageStore.addPublicMessage(publicMsg);
             
-            // 2. Luego lo transmitimos a todos
-            SessionManager.broadcast(gson.toJson(msg));
-            
+            // Enviar mensaje completo con todos los campos
+            SessionManager.broadcast(gson.toJson(publicMsg));
         } else if ("private".equals(msg.type) && msg.to != null) {
             // Verificar si el destinatario existe
             if (SessionManager.getConnectedUsers().contains(msg.to)) {

@@ -11,8 +11,9 @@ public class ChatMessageStore {
     private static final Queue<ChatMessage> PUBLIC_MESSAGES = new ConcurrentLinkedQueue<>();
 
     public static void addPublicMessage(ChatMessage message) {
+        message.timestamp = System.currentTimeMillis();
         if (PUBLIC_MESSAGES.size() >= MAX_MESSAGES) {
-            PUBLIC_MESSAGES.poll(); // Elimina el mensaje más antiguo
+            PUBLIC_MESSAGES.poll();
         }
         PUBLIC_MESSAGES.add(message);
     }
