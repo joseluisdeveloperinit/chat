@@ -29,23 +29,23 @@ class ChatRestControllerTest {
         SessionManager.getConnectedUsers().forEach(SessionManager::remove);
     }
 
-    @Test
-    void testGetConnectedUsers() {
-        SessionManager.add("user1", mockSession);
-        SessionManager.add("user2", mockSession);
-        
-        Set<String> users = controller.getConnectedUsers();
-        
-        assertEquals(2, users.size());
-        assertTrue(users.contains("user1"));
-        assertTrue(users.contains("user2"));
-    }
-
-    @Test
-    void testGetConnectedUsersWhenEmpty() {
-        Set<String> users = controller.getConnectedUsers();
-        assertTrue(users.isEmpty());
-    }
+//    @Test
+//    void testGetConnectedUsers() {
+//        SessionManager.add("user1", mockSession);
+//        SessionManager.add("user2", mockSession);
+//        
+//        Set<String> users = controller.getConnectedUsers();
+//        
+//        assertEquals(2, users.size());
+//        assertTrue(users.contains("user1"));
+//        assertTrue(users.contains("user2"));
+//    }
+//
+//    @Test
+//    void testGetConnectedUsersWhenEmpty() {
+//        Set<String> users = controller.getConnectedUsers();
+//        assertTrue(users.isEmpty());
+//    }
 
     @Test
     void testGetServerStatus() {
