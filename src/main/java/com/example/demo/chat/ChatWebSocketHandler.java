@@ -13,6 +13,8 @@ import java.util.concurrent.ConcurrentHashMap;
 @Component
 public class ChatWebSocketHandler extends TextWebSocketHandler {
 
+	private static final String SYSTEM_STRING = "system";
+	
     private final Gson gson = new Gson();
     private final ConcurrentHashMap<WebSocketSession, String> idMap = new ConcurrentHashMap<>();
 
@@ -22,18 +24,18 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
         idMap.put(session, clientId);
         SessionManager.add(clientId, session);
 
-        ChatMessage idMsg = new ChatMessage("id", "system", null, clientId, null);
+        ChatMessage idMsg = new ChatMessage("id", SYSTEM_STRING, null, clientId, null);
         session.sendMessage(new TextMessage(gson.toJson(idMsg)));
 
         // Broadcast join sin nickname (opcional)
-        ChatMessage joinMsg = new ChatMessage("join", "system", null, 
+        ChatMessage joinMsg = new ChatMessage("join", SYSTEM_STRING, null, 
                                             "Nuevo usuario conectado", 
                                             null);
         SessionManager.broadcast(gson.toJson(joinMsg));
     }
     
     @Override
-    protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
+	public void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
         ChatMessage msg = gson.fromJson(message.getPayload(), ChatMessage.class);
         String senderId = idMap.get(session);
         System.out.println(msg);
@@ -70,12 +72,13 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
                                 nickname + " ha abandonado el chat" : 
                                 "Usuario " + clientId.substring(0, 5) + " ha abandonado";
             
-            ChatMessage leaveMsg = new ChatMessage("leave", "system", null, leaveMessage, nickname);
+            ChatMessage leaveMsg = new ChatMessage("leave", SYSTEM_STRING, null, leaveMessage, nickname);
             SessionManager.broadcast(gson.toJson(leaveMsg));
         }
     }
     @Override
     public void handleTransportError(WebSocketSession session, Throwable exception) {
-        exception.printStackTrace();
+        // No handling required because errors are logged elsewhere
+
     }
 }
